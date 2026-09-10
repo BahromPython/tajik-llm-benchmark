@@ -1,0 +1,20 @@
+{
+  "study_id": "tajik-pivot-matched-control-diagnostic-v1",
+  "dataset_version": "professor-validated-1600-v1",
+  "models": [
+    {"provider": "openai", "model": "gpt-5.6-luna", "temperature": 0.0, "max_output_tokens": 256, "repetitions": 1, "access_mode": "api", "tools_enabled": false, "reasoning_effort": "none"},
+    {"provider": "openai", "model": "gpt-5.6-terra", "temperature": 0.0, "max_output_tokens": 256, "repetitions": 1, "access_mode": "api", "tools_enabled": false, "reasoning_effort": "none"},
+    {"provider": "openai", "model": "gpt-5.6-sol", "temperature": 0.0, "max_output_tokens": 256, "repetitions": 1, "access_mode": "api", "tools_enabled": false, "reasoning_effort": "none"},
+    {"provider": "anthropic", "model": "claude-haiku-4-5-20251001", "temperature": 0.0, "max_output_tokens": 256, "repetitions": 1, "access_mode": "api", "tools_enabled": false},
+    {"provider": "anthropic", "model": "claude-sonnet-4-6", "temperature": 0.0, "max_output_tokens": 256, "repetitions": 1, "access_mode": "api", "tools_enabled": false},
+    {"provider": "anthropic", "model": "claude-sonnet-5", "temperature": 0.0, "max_output_tokens": 256, "repetitions": 1, "access_mode": "api", "tools_enabled": false},
+    {"provider": "google", "model": "gemini-3.5-flash-lite", "temperature": 0.0, "max_output_tokens": 256, "repetitions": 1, "access_mode": "api", "tools_enabled": false, "reasoning_effort": "low"},
+    {"provider": "google", "model": "gemini-3.5-flash", "temperature": 0.0, "max_output_tokens": 256, "repetitions": 1, "access_mode": "api", "tools_enabled": false, "reasoning_effort": "low"},
+    {"provider": "google", "model": "gemini-3.8-flash", "temperature": 0.0, "max_output_tokens": 256, "repetitions": 1, "access_mode": "api", "tools_enabled": false, "reasoning_effort": "low"}
+  ],
+  "conditions": ["tajik_matched_control"],
+  "splits": ["development"],
+  "sample_size": 80,
+  "random_seed": 20260909,
+  "conversation_mode": "stateless_one_request_per_conversation"
+}

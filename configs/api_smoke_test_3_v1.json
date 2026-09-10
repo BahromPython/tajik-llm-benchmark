@@ -1,0 +1,14 @@
+{
+  "study_id": "tajik-pivot-api-smoke-test-v1",
+  "dataset_version": "professor-validated-1600-v1",
+  "models": [
+    {"provider": "openai", "model": "gpt-5.6-luna", "temperature": 0.0, "max_output_tokens": 64, "repetitions": 1, "access_mode": "api", "tools_enabled": false, "reasoning_effort": "none"},
+    {"provider": "anthropic", "model": "claude-haiku-4-5-20251001", "temperature": 0.0, "max_output_tokens": 64, "repetitions": 1, "access_mode": "api", "tools_enabled": false, "reasoning_effort": "none"},
+    {"provider": "google", "model": "gemini-3.5-flash-lite", "temperature": 0.0, "max_output_tokens": 64, "repetitions": 1, "access_mode": "api", "tools_enabled": false, "reasoning_effort": "low"}
+  ],
+  "conditions": ["direct_tajik"],
+  "splits": ["development"],
+  "sample_size": 1,
+  "random_seed": 20260909,
+  "conversation_mode": "stateless_one_request_per_conversation"
+}

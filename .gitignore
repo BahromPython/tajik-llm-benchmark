@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+!.env.example
+
+# Unpublished benchmark items and answer keys.
+data/*.csv
+validation_evidence/
+
+# Generated experimental artifacts.
+runs/*
+!runs/.gitkeep
+professor_dashboard/index.html
+
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,39 @@
+{
+  "version": "human-rubric-v1-2026-09-08",
+  "blinding": "Raters must not see model or prompt condition.",
+  "double_scoring_fraction_minimum": 0.25,
+  "dimensions": {
+    "grammaticality": {
+      "0": "Major grammatical errors make the response incorrect or difficult to understand.",
+      "1": "Meaning is understandable, but one or more noticeable grammatical problems remain.",
+      "2": "Grammatically acceptable Tajik for the requested register."
+    },
+    "naturalness": {
+      "0": "Clearly unnatural, translated, or non-Tajik phrasing dominates.",
+      "1": "Mostly understandable but contains awkward or non-idiomatic phrasing.",
+      "2": "Natural Tajik phrasing appropriate for the task and register."
+    },
+    "meaning_or_factual_correctness": {
+      "0": "Central meaning is wrong, missing, or factually incorrect.",
+      "1": "Core answer is partly correct but incomplete or contains a minor substantive error.",
+      "2": "Core meaning and relevant facts are correct."
+    },
+    "instruction_adherence": {
+      "0": "Does not complete the requested task or violates the required format substantially.",
+      "1": "Completes the main task but misses a secondary instruction or format constraint.",
+      "2": "Follows the task, language, register, length, and format instructions."
+    }
+  },
+  "code_switching_rule": {
+    "count_as_unjustified": "A Russian or English insertion for which a common, natural Tajik expression is available and the foreign form is not required by the task.",
+    "do_not_count": [
+      "proper names",
+      "direct quotations",
+      "user-required foreign terms",
+      "standard abbreviations",
+      "codes, URLs, and model names",
+      "loanwords explicitly approved in the professor-reviewed lexicon"
+    ]
+  },
+  "adjudication": "Disagreements remain visible; the professor or designated third Tajik rater adjudicates only after independent scoring is complete."
+}

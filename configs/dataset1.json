@@ -1,0 +1,46 @@
+{
+  "study_id": "tajik-diagnostic-benchmark-v1",
+  "dataset_version": "dataset1-candidate-2026-08-19",
+  "dataset_file": "data/dataset1_diagnostic_240.csv",
+  "models": [
+    {
+      "provider": "gemini",
+      "model": "TO_BE_FIXED_BEFORE_RUN",
+      "temperature": 0.0,
+      "max_output_tokens": 512,
+      "repetitions": 1
+    },
+    {
+      "provider": "manual_chatgpt",
+      "model": "RECORD_EXACT_UI_MODEL_AT_COLLECTION",
+      "temperature": null,
+      "max_output_tokens": 512,
+      "repetitions": 1
+    },
+    {
+      "provider": "manual_claude",
+      "model": "RECORD_EXACT_UI_MODEL_AT_COLLECTION",
+      "temperature": null,
+      "max_output_tokens": 512,
+      "repetitions": 1
+    }
+  ],
+  "optional_models": [
+    {
+      "provider": "qwen",
+      "model": "TO_BE_ADDED_ONLY_IF_API_QUOTA_IS_CONFIRMED"
+    }
+  ],
+  "conditions": [
+    "direct_tajik",
+    "tajik_reasoning",
+    "pivot_english",
+    "pivot_russian",
+    "pivot_persian",
+    "translation_only_english"
+  ],
+  "splits": ["dev"],
+  "test_locked": true,
+  "unlock_rule": "Professor validation complete and accepted test set frozen",
+  "random_seed": 20260819
+}

@@ -1,0 +1,24 @@
+{
+  "study_id": "tajik-pilot-v1",
+  "dataset_version": "pilot-2026-08",
+  "models": [
+    {
+      "provider": "mock",
+      "model": "deterministic-baseline-v1",
+      "temperature": 0.0,
+      "max_output_tokens": 256,
+      "repetitions": 1
+    }
+  ],
+  "conditions": [
+    "direct_tajik",
+    "tajik_reasoning",
+    "pivot_english",
+    "pivot_russian",
+    "pivot_persian",
+    "translation_only_english"
+  ],
+  "splits": ["dev"],
+  "random_seed": 20260816
+}
+

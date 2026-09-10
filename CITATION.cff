@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "Please cite this software when using it in research."
+title: "Tajik LLM Benchmark"
+authors:
+  - family-names: "Ashurov"
+    given-names: "Bahrom"
+version: 0.1.0
+date-released: 2026-09-10
+type: software
+abstract: "A reproducible benchmark framework for evaluating direct and pivot-language prompting in Tajik."
+keywords:
+  - Tajik
+  - large language models
+  - multilingual NLP
+  - low-resource languages
+  - benchmarking
+license: LicenseRef-Proprietary

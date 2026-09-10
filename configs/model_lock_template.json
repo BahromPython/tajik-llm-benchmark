@@ -1,0 +1,14 @@
+{
+  "collection_window_utc": {"start": "CONFIRM", "end": "CONFIRM"},
+  "models": [
+    {"provider": "OpenAI", "exact_model_identifier": "CONFIRM", "access_mode": "api_or_manual", "tools_enabled": false},
+    {"provider": "Anthropic", "exact_model_identifier": "CONFIRM", "access_mode": "api_or_manual", "tools_enabled": false},
+    {"provider": "Google", "exact_model_identifier": "CONFIRM", "access_mode": "api", "tools_enabled": false},
+    {"provider": "Qwen", "exact_model_identifier": "OPTIONAL_CONFIRM", "access_mode": "api_or_manual", "tools_enabled": false}
+  ],
+  "generation": {"temperature": 0.0, "max_output_tokens": 512, "repetitions": 1},
+  "session_policy": "Every item-condition request must be stateless and must not include previous benchmark turns.",
+  "pricing_snapshot_date": "CONFIRM",
+  "protocol_frozen_by": "CONFIRM",
+  "protocol_freeze_timestamp_utc": "CONFIRM"
+}

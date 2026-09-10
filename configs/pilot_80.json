@@ -1,0 +1,26 @@
+{
+  "study_id": "tajik-pivot-pilot-80-v1",
+  "dataset_version": "frozen-1600-2026-08-19",
+  "models": [
+    {
+      "provider": "mock",
+      "model": "deterministic-baseline-v1",
+      "temperature": 0.0,
+      "max_output_tokens": 512,
+      "repetitions": 1,
+      "access_mode": "offline_test",
+      "tools_enabled": false
+    }
+  ],
+  "conditions": [
+    "direct_tajik",
+    "tajik_matched_control",
+    "pivot_persian",
+    "pivot_russian",
+    "pivot_english"
+  ],
+  "splits": ["development"],
+  "sample_size": 80,
+  "random_seed": 20260819,
+  "conversation_mode": "stateless_one_request_per_conversation"
+}

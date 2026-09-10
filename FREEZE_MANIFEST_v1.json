@@ -1,0 +1,45 @@
+{
+  "created_at": "2026-08-19",
+  "files": {
+    "outputs/Bahrom_Ashurov_Research_Outline_v2_Pivot_Effects.docx": {
+      "bytes": 14211,
+      "sha256": "7a555d29de98fd93a70560d26c5b482ccae3a06af5c1b9af770380d2781cd6e7"
+    },
+    "outputs/Bahrom_Ashurov_Preregistration_Checklist.docx": {
+      "bytes": 12479,
+      "sha256": "4a583962d56aabeef83c863a4f250dcd32fc759c268572c7668a2357ba19bf1c"
+    },
+    "outputs/Tajik_LLM_Frozen_Splits_1600.xlsx": {
+      "bytes": 274948,
+      "sha256": "fe3d3c90eb58239a8004b7676bbe2501b6fe8e29e9daa3552e2aa88ef9e09c8a"
+    },
+    "research/data/dataset1_frozen_1600.csv": {
+      "bytes": 743118,
+      "sha256": "df51ad98b2d7df168b73424a3fe98e4b49284d520bc16de5cf4bf31fb92f8b78"
+    },
+    "research/data/dataset1_development.csv": {
+      "bytes": 88890,
+      "sha256": "a8ab7f687645e0c662f84061c58f024dc7188c1b67a965271fd887404d857908"
+    },
+    "research/data/dataset1_primary_test.csv": {
+      "bytes": 372360,
+      "sha256": "837d343908e870843ec18f11617ce3e457e2ec19a3bce77dde8d8d0e9876e03c"
+    },
+    "research/data/dataset1_robustness.csv": {
+      "bytes": 199965,
+      "sha256": "98250fa83293e3da61fa23a6b296c7a27a6e35d001a44f1f87c023398be1a75e"
+    },
+    "research/data/dataset1_reserve.csv": {
+      "bytes": 82512,
+      "sha256": "f5707fe640ba7052ea10f26ddcffd0805c304aa1c5b2ecd6a0defbacc8564346"
+    },
+    "research/configs/prompt_templates_v1.json": {
+      "bytes": 2122,
+      "sha256": "3c06f1d02cb310ed420e1fcb168e7ee7e60bd62ff591d9ce5e5c45de9c1da455"
+    },
+    "research/configs/pivot_experiment_v1.json": {
+      "bytes": 1148,
+      "sha256": "ac9f9527cca403b5a7da080f0c02f967d54b5c7aa57bc360acc6d0b2877b12b1"
+    }
+  }
+}

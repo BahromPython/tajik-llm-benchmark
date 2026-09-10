@@ -1,0 +1,47 @@
+{
+  "study_id": "tajik-pivot-effects-v1",
+  "dataset": "data/dataset1_frozen_1600.csv",
+  "splits": {
+    "development": 200,
+    "primary_test": 800,
+    "robustness": 400,
+    "reserve": 200
+  },
+  "primary_conditions": [
+    "direct_tajik",
+    "pivot_persian",
+    "pivot_russian",
+    "pivot_english"
+  ],
+  "translation_control_scope": "development",
+  "models": [
+    {
+      "provider": "OpenAI ChatGPT Plus UI",
+      "exact_model_label": "RECORD AT COLLECTION",
+      "access_mode": "manual"
+    },
+    {
+      "provider": "Anthropic Claude paid UI",
+      "exact_model_label": "RECORD AT COLLECTION",
+      "access_mode": "manual"
+    },
+    {
+      "provider": "Google Gemini API",
+      "exact_model_identifier": "LOCK BEFORE COLLECTION",
+      "access_mode": "api"
+    },
+    {
+      "provider": "Qwen",
+      "exact_model_identifier": "OPTIONAL—INCLUDE ONLY AFTER ACCESS CONFIRMED",
+      "access_mode": "api_or_manual"
+    }
+  ],
+  "generation": {
+    "temperature": 0,
+    "max_output_tokens": 512,
+    "repetitions": 1
+  },
+  "meaningful_effect_threshold_percentage_points": 5,
+  "random_seed": 20260819,
+  "test_locked": true
+}

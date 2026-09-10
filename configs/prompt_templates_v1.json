@@ -1,0 +1,18 @@
+{
+  "version": "pivot-prompts-v1.0-2026-08-19",
+  "output_rule": "Return only the final answer in Tajik. Do not reveal chain-of-thought.",
+  "conditions": {
+    "direct_tajik": "Ба супориши зерин мустақиман ба забони тоҷикӣ ҷавоб диҳед. Танҳо ҷавоби ниҳоиро ба тоҷикӣ нависед; раванди мулоҳизаро нишон надиҳед.\n\n{ITEM}",
+    "pivot_persian": "Супориши зеринро дар дохил ба забони форсӣ тарҷума кунед, дар забони форсӣ мулоҳиза намоед ва танҳо ҷавоби ниҳоиро ба забони тоҷикӣ нависед. Раванди мулоҳизаро нишон надиҳед.\n\n{ITEM}",
+    "pivot_russian": "Супориши зеринро дар дохил ба забони русӣ тарҷума кунед, дар забони русӣ мулоҳиза намоед ва танҳо ҷавоби ниҳоиро ба забони тоҷикӣ нависед. Раванди мулоҳизаро нишон надиҳед.\n\n{ITEM}",
+    "pivot_english": "Супориши зеринро дар дохил ба забони англисӣ тарҷума кунед, дар забони англисӣ мулоҳиза намоед ва танҳо ҷавоби ниҳоиро ба забони тоҷикӣ нависед. Раванди мулоҳизаро нишон надиҳед.\n\n{ITEM}",
+    "translation_only_control": "Матни зерро ба забони {PIVOT_LANGUAGE} тарҷума кунед ва сипас онро ба забони тоҷикӣ баргардонед. Ба савол ё супориш ҷавоб надиҳед; танҳо матни бозтарҷумашударо пешниҳод кунед.\n\n{ITEM}"
+  },
+  "primary_conditions": [
+    "direct_tajik",
+    "pivot_persian",
+    "pivot_russian",
+    "pivot_english"
+  ],
+  "control_scope": "translation_only_control is run on the 200-item development set with Persian, Russian, and English as the parameterized pivot."
+}

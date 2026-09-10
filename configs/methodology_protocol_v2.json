@@ -1,0 +1,85 @@
+{
+  "protocol_version": "2.0",
+  "freeze_status": "prepared_not_frozen",
+  "dataset": {
+    "version": "professor-validated-1600-v1",
+    "development": 200,
+    "primary_test": 800,
+    "robustness": 400,
+    "reserve": 200
+  },
+  "conditions": ["direct_tajik", "pivot_persian", "pivot_russian", "pivot_english"],
+  "pilot": {
+    "items": 200,
+    "models": 9,
+    "requests": 7200,
+    "matched_tajik_control_diagnostic_requests": 720,
+    "purpose": "technical validation and within-provider model selection only"
+  },
+  "model_selection": {
+    "unit": "one winner per provider",
+    "primary_metric": "macro-average objective accuracy across grammar and factual development items",
+    "tie_rule": "if models differ by less than 1 percentage point, select the lower cost per correct response",
+    "prohibited_inputs": ["primary_test", "robustness", "reserve", "open-ended subjective preference after unblinding"]
+  },
+  "confirmatory_test": {
+    "items": 800,
+    "selected_models": 3,
+    "requests": 9600,
+    "hypotheses": [
+      "Persian pivot versus direct Tajik on grammar accuracy",
+      "Russian pivot versus direct Tajik on factual accuracy",
+      "English pivot versus direct Tajik on factual accuracy"
+    ],
+    "practical_significance_threshold_percentage_points": 5,
+    "familywise_correction": "Holm across all model-specific confirmatory comparisons: three contrasts per selected model"
+  },
+  "translation_diagnostic": {
+    "items": 80,
+    "models": "three provider winners",
+    "pivots": ["Persian", "Russian", "English"],
+    "requests": 720,
+    "purpose": "measure meaning change caused by translation separately from task solving"
+  },
+  "stability": {
+    "sample_fraction": 0.10,
+    "additional_repetitions": 2,
+    "selection": "fixed stratified sample by category and register selected before primary collection",
+    "report": ["exact agreement", "score variance", "condition effect stability"]
+  },
+  "human_scoring": {
+    "blind_fields": ["provider", "model", "condition"],
+    "randomization_unit": "response",
+    "primary_rater_fraction": 1.0,
+    "second_rater_fraction": 0.25,
+    "second_rater_sample": "stratified by model condition category and register",
+    "agreement": ["percentage agreement", "quadratic weighted Cohen kappa"],
+    "adjudication": "retain original ratings and add a third adjudicated value"
+  },
+  "analysis": {
+    "paired_binary_test": "two-sided exact McNemar",
+    "effect": "paired absolute percentage-point difference",
+    "interval": "item-level paired bootstrap 95 percent CI with 10000 resamples",
+    "exploratory_model": "mixed-effects regression with item random intercept if software and convergence permit",
+    "missingness": "report every failure; primary complete-pair analysis plus failure-as-incorrect sensitivity analysis",
+    "subgroups": "category and register estimates labeled exploratory unless listed as hypotheses"
+  },
+  "collection": {
+    "stateless": true,
+    "tools_enabled": false,
+    "temperature": 0,
+    "max_output_tokens": 256,
+    "randomized_request_order": true,
+    "append_only": true,
+    "resume_by_request_id": true,
+    "budget_ceiling_usd": 25,
+    "budget_scope": "development pilot",
+    "stop_rules": ["budget reached", "provider model identifier mismatch", "systematic parser failure above 2 percent"]
+  },
+  "reporting": {
+    "tokens": ["input", "output", "cached", "reasoning", "total"],
+    "operations": ["latency", "retries", "rate limits", "failures", "truncation", "format violations"],
+    "efficiency": ["cost per correct response", "tokens per correct response"],
+    "publication": "aggregate dashboard only until dataset and provider-output release rights are confirmed"
+  }
+}
