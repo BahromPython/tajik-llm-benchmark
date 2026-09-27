@@ -1,0 +1,41 @@
+﻿study_id,reviewer_id,reviewer_name,blind_id,item_id,grammaticality,naturalness,meaning_correctness,instruction_adherence,register_fit,unwanted_code_switching,notes,auditor_recommendation,flagged,complete,updated_at_utc
+bahrom-450,dr-linguist,Dr. Linguist,BR-00000001,V2-2-GENERATION-0001,1,2,1,1,1,yes,Assessment from Dr. Linguist,,False,True,2026-09-27T16:57:41.458813Z
+bahrom-450,pragmatist,Pragmatist,BR-00000001,V2-2-GENERATION-0001,2,1,1,2,1,yes,Assessment from Pragmatist,,False,True,2026-09-27T16:57:41.458842Z
+bahrom-450,native-speaker,Native Speaker,BR-00000001,V2-2-GENERATION-0001,1,2,1,2,1,yes,Assessment from Native Speaker,,False,True,2026-09-27T16:57:41.458846Z
+bahrom-450,auditor,The Auditor,BR-00000001,V2-2-GENERATION-0001,2,1,1,1,1,yes,Assessment from The Auditor,ACCEPT,False,True,2026-09-27T16:57:41.458848Z
+bahrom-450,dr-linguist,Dr. Linguist,BR-00000002,V2-2-GENERATION-0002,2,3,2,2,2,no,Assessment from Dr. Linguist,,False,True,2026-09-27T16:57:41.458852Z
+bahrom-450,pragmatist,Pragmatist,BR-00000002,V2-2-GENERATION-0002,3,2,2,3,2,no,Assessment from Pragmatist,,False,True,2026-09-27T16:57:41.458857Z
+bahrom-450,native-speaker,Native Speaker,BR-00000002,V2-2-GENERATION-0002,2,3,2,3,2,no,Assessment from Native Speaker,,False,True,2026-09-27T16:57:41.458865Z
+bahrom-450,auditor,The Auditor,BR-00000002,V2-2-GENERATION-0002,3,2,2,2,2,no,Assessment from The Auditor,ACCEPT,False,True,2026-09-27T16:57:41.458868Z
+bahrom-450,dr-linguist,Dr. Linguist,BR-00000003,V2-2-GENERATION-0003,1,2,1,1,1,yes,Assessment from Dr. Linguist,,False,True,2026-09-27T16:57:41.458872Z
+bahrom-450,pragmatist,Pragmatist,BR-00000003,V2-2-GENERATION-0003,2,1,1,2,1,yes,Assessment from Pragmatist,,False,True,2026-09-27T16:57:41.458874Z
+bahrom-450,native-speaker,Native Speaker,BR-00000003,V2-2-GENERATION-0003,1,2,1,2,1,yes,Assessment from Native Speaker,,False,True,2026-09-27T16:57:41.458876Z
+bahrom-450,auditor,The Auditor,BR-00000003,V2-2-GENERATION-0003,2,1,1,1,1,yes,Assessment from The Auditor,ACCEPT,False,True,2026-09-27T16:57:41.458879Z
+bahrom-450,dr-linguist,Dr. Linguist,BR-00000004,V2-2-GENERATION-0004,2,3,2,2,2,no,Assessment from Dr. Linguist,,False,True,2026-09-27T16:57:41.458882Z
+bahrom-450,pragmatist,Pragmatist,BR-00000004,V2-2-GENERATION-0004,3,2,2,3,2,no,Assessment from Pragmatist,,False,True,2026-09-27T16:57:41.458884Z
+bahrom-450,native-speaker,Native Speaker,BR-00000004,V2-2-GENERATION-0004,2,3,2,3,2,no,Assessment from Native Speaker,,False,True,2026-09-27T16:57:41.458886Z
+bahrom-450,auditor,The Auditor,BR-00000004,V2-2-GENERATION-0004,3,2,2,2,2,no,Assessment from The Auditor,ACCEPT,False,True,2026-09-27T16:57:41.458891Z
+bahrom-450,dr-linguist,Dr. Linguist,BR-00000005,V2-2-GENERATION-0005,1,2,1,1,1,yes,Assessment from Dr. Linguist,,False,True,2026-09-27T16:57:41.458894Z
+bahrom-450,pragmatist,Pragmatist,BR-00000005,V2-2-GENERATION-0005,2,1,1,2,1,yes,Assessment from Pragmatist,,False,True,2026-09-27T16:57:41.458896Z
+bahrom-450,native-speaker,Native Speaker,BR-00000005,V2-2-GENERATION-0005,1,2,1,2,1,yes,Assessment from Native Speaker,,False,True,2026-09-27T16:57:41.458898Z
+bahrom-450,auditor,The Auditor,BR-00000005,V2-2-GENERATION-0005,2,1,1,1,1,yes,Assessment from The Auditor,ACCEPT,False,True,2026-09-27T16:57:41.458900Z
+bahrom-450,dr-linguist,Dr. Linguist,BR-00000006,V2-2-GENERATION-0006,2,3,2,2,2,no,Assessment from Dr. Linguist,,False,True,2026-09-27T16:57:41.458905Z
+bahrom-450,pragmatist,Pragmatist,BR-00000006,V2-2-GENERATION-0006,3,2,2,3,2,no,Assessment from Pragmatist,,False,True,2026-09-27T16:57:41.458907Z
+bahrom-450,native-speaker,Native Speaker,BR-00000006,V2-2-GENERATION-0006,2,3,2,3,2,no,Assessment from Native Speaker,,False,True,2026-09-27T16:57:41.458909Z
+bahrom-450,auditor,The Auditor,BR-00000006,V2-2-GENERATION-0006,3,2,2,2,2,no,Assessment from The Auditor,ACCEPT,False,True,2026-09-27T16:57:41.458911Z
+bahrom-450,dr-linguist,Dr. Linguist,BR-00000007,V2-2-GENERATION-0007,1,2,1,1,1,yes,Assessment from Dr. Linguist,,False,True,2026-09-27T16:57:41.458914Z
+bahrom-450,pragmatist,Pragmatist,BR-00000007,V2-2-GENERATION-0007,2,1,1,2,1,yes,Assessment from Pragmatist,,False,True,2026-09-27T16:57:41.458922Z
+bahrom-450,native-speaker,Native Speaker,BR-00000007,V2-2-GENERATION-0007,1,2,1,2,1,yes,Assessment from Native Speaker,,False,True,2026-09-27T16:57:41.458924Z
+bahrom-450,auditor,The Auditor,BR-00000007,V2-2-GENERATION-0007,2,1,1,1,1,yes,Assessment from The Auditor,ACCEPT,False,True,2026-09-27T16:57:41.458926Z
+bahrom-450,dr-linguist,Dr. Linguist,BR-00000008,V2-2-GENERATION-0008,2,3,2,2,2,no,Assessment from Dr. Linguist,,False,True,2026-09-27T16:57:41.458928Z
+bahrom-450,pragmatist,Pragmatist,BR-00000008,V2-2-GENERATION-0008,3,2,2,3,2,no,Assessment from Pragmatist,,False,True,2026-09-27T16:57:41.458930Z
+bahrom-450,native-speaker,Native Speaker,BR-00000008,V2-2-GENERATION-0008,2,3,2,3,2,no,Assessment from Native Speaker,,False,True,2026-09-27T16:57:41.458932Z
+bahrom-450,auditor,The Auditor,BR-00000008,V2-2-GENERATION-0008,3,2,2,2,2,no,Assessment from The Auditor,ACCEPT,False,True,2026-09-27T16:57:41.458934Z
+bahrom-450,dr-linguist,Dr. Linguist,BR-00000009,V2-2-GENERATION-0009,1,2,1,1,1,yes,Assessment from Dr. Linguist,,False,True,2026-09-27T16:57:41.458937Z
+bahrom-450,pragmatist,Pragmatist,BR-00000009,V2-2-GENERATION-0009,2,1,1,2,1,yes,Assessment from Pragmatist,,False,True,2026-09-27T16:57:41.458939Z
+bahrom-450,native-speaker,Native Speaker,BR-00000009,V2-2-GENERATION-0009,1,2,1,2,1,yes,Assessment from Native Speaker,,False,True,2026-09-27T16:57:41.458941Z
+bahrom-450,auditor,The Auditor,BR-00000009,V2-2-GENERATION-0009,2,1,1,1,1,yes,Assessment from The Auditor,ACCEPT,False,True,2026-09-27T16:57:41.458946Z
+bahrom-450,dr-linguist,Dr. Linguist,BR-00000010,V2-2-GENERATION-0010,2,3,2,2,2,no,Assessment from Dr. Linguist,,False,True,2026-09-27T16:57:41.458948Z
+bahrom-450,pragmatist,Pragmatist,BR-00000010,V2-2-GENERATION-0010,3,2,2,3,2,no,Assessment from Pragmatist,,False,True,2026-09-27T16:57:41.458950Z
+bahrom-450,native-speaker,Native Speaker,BR-00000010,V2-2-GENERATION-0010,2,3,2,3,2,no,Assessment from Native Speaker,,False,True,2026-09-27T16:57:41.458952Z
+bahrom-450,auditor,The Auditor,BR-00000010,V2-2-GENERATION-0010,3,2,2,2,2,no,Assessment from The Auditor,ACCEPT,False,True,2026-09-27T16:57:41.458954Z
