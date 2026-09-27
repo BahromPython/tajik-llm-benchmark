@@ -85,20 +85,28 @@ def evaluate_answer(
     blind_id: str = "",
     study_id: str = "council-eval",
     reviewer_name: str = "AI Council",
+    batch_mode: bool = True,
 ) -> dict:
     """
     Evaluate answer using three independent evaluators.
     Returns data in tajik-human-review-v1 export schema.
+
+    batch_mode=True: All 3 evaluators in ONE prompt (450 items = 450 API calls)
+    batch_mode=False: Each evaluator separate (450 items × 3 = 1350 API calls)
     """
 
     evaluations = {}
 
-    # Get independent evaluations from each persona
-    for persona_key, persona_info in EVALUATORS.items():
-        eval_result = _get_persona_evaluation(
-            persona_info, answer, question, expected_answer, context
-        )
-        evaluations[persona_key] = eval_result
+    if batch_mode:
+        # ONE PROMPT: all 3 evaluators assess together (efficient)
+        evaluations = _get_batch_evaluation(answer, question, expected_answer, context)
+    else:
+        # SEPARATE: each evaluator gets their own prompt (legacy)
+        for persona_key, persona_info in EVALUATORS.items():
+            eval_result = _get_persona_evaluation(
+                persona_info, answer, question, expected_answer, context
+            )
+            evaluations[persona_key] = eval_result
 
     # Build export schema records (one per evaluator)
     export_records = []
@@ -135,6 +143,121 @@ def evaluate_answer(
         "question": question,
         "answer": answer,
     }
+
+
+def _get_batch_evaluation(
+    answer: str, question: str, expected_answer: Optional[str], context: str
+) -> dict:
+    """
+    Get evaluations from all 3 personas in ONE API call (efficient batch mode).
+    ONE PROMPT → 450 API calls instead of 1,350.
+    """
+
+    dimensions_str = "\n".join(
+        [
+            f"{dim.upper()}:\n"
+            + "\n".join(f"  {i}: {RUBRIC_DESCRIPTIONS[dim][str(i)]}" for i in range(3))
+            for dim in RUBRIC_DIMENSIONS
+        ]
+    )
+
+    prompt = f"""You are three independent Tajik language evaluators. Each of you will assess this response using the rubric below. Work independently—do not influence each other's scores.
+
+{dimensions_str}
+
+UNWANTED CODE-SWITCHING:
+Answer: "yes" (unjustified Russian/English present), "no" (none), or "unclear"
+
+TASK:
+Question: {question}
+{f"Context: {context}" if context else ""}
+{f"Reference Answer: {expected_answer}" if expected_answer else ""}
+
+RESPONSE TO EVALUATE:
+{answer}
+
+---
+
+EVALUATOR 1 - Dr. Linguist (Strict Grammarian):
+You prioritize grammatical accuracy, register appropriateness, and natural phrasing.
+Provide your assessment in JSON:
+{{"grammaticality": <0-2>, "naturalness": <0-2>, "meaning_correctness": <0-2>, "instruction_adherence": <0-2>, "register_fit": <0-2>, "unwanted_code_switching": "<yes|no|unclear>", "notes": "<brief explanation>"}}
+
+EVALUATOR 2 - Pragmatist (Task Completion):
+You focus on task completion and whether the answer solves the user's problem.
+Provide your assessment in JSON:
+{{"grammaticality": <0-2>, "naturalness": <0-2>, "meaning_correctness": <0-2>, "instruction_adherence": <0-2>, "register_fit": <0-2>, "unwanted_code_switching": "<yes|no|unclear>", "notes": "<brief explanation>"}}
+
+EVALUATOR 3 - Native Speaker (Authenticity):
+You assess whether it sounds natural and idiomatic to a fluent ear.
+Provide your assessment in JSON:
+{{"grammaticality": <0-2>, "naturalness": <0-2>, "meaning_correctness": <0-2>, "instruction_adherence": <0-2>, "register_fit": <0-2>, "unwanted_code_switching": "<yes|no|unclear>", "notes": "<brief explanation>"}}
+
+---
+
+Respond with THREE separate JSON objects, one per evaluator. No markdown, no explanations between them.
+"""
+
+    try:
+        payload = {"contents": [{"parts": [{"text": prompt}]}]}
+        headers = {"Content-Type": "application/json"}
+        url = f"{GEMINI_API_URL}?key={API_KEY}"
+
+        response = requests.post(url, json=payload, headers=headers, timeout=60)
+        response.raise_for_status()
+
+        data = response.json()
+        text_response = (
+            data.get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [{}])[0]
+            .get("text", "")
+        )
+
+        # Parse three JSON objects from response
+        evaluations = {}
+        persona_keys = ["linguist", "pragmatist", "native"]
+
+        # Extract JSON objects
+        json_objects = []
+        import re
+
+        for match in re.finditer(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", text_response):
+            try:
+                json_objects.append(json.loads(match.group()))
+            except json.JSONDecodeError:
+                pass
+
+        # Assign to personas
+        for i, persona_key in enumerate(persona_keys):
+            if i < len(json_objects):
+                evaluations[persona_key] = json_objects[i]
+            else:
+                evaluations[persona_key] = {
+                    "grammaticality": "",
+                    "naturalness": "",
+                    "meaning_correctness": "",
+                    "instruction_adherence": "",
+                    "register_fit": "",
+                    "unwanted_code_switching": "unclear",
+                    "notes": "Failed to parse evaluation",
+                }
+
+        return evaluations
+
+    except (json.JSONDecodeError, requests.RequestException, KeyError) as e:
+        return {
+            persona_key: {
+                "grammaticality": "",
+                "naturalness": "",
+                "meaning_correctness": "",
+                "instruction_adherence": "",
+                "register_fit": "",
+                "unwanted_code_switching": "unclear",
+                "notes": f"Error: {str(e)}",
+            }
+            for persona_key in ["linguist", "pragmatist", "native"]
+        }
 
 
 def _get_persona_evaluation(
