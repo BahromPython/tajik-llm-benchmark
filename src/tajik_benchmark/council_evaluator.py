@@ -6,6 +6,7 @@ Exports results in tajik-human-review-v1 schema (matching HTML review interface)
 
 import os
 import json
+import re
 from typing import Optional
 from datetime import datetime
 import requests
