@@ -19,7 +19,7 @@ if not API_KEY:
 
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
-# Three evaluator personas
+# Four evaluator personas (3 assessors + 1 auditor)
 EVALUATORS = {
     "linguist": {
         "name": "Dr. Linguist",
@@ -35,6 +35,11 @@ EVALUATORS = {
         "name": "Native Speaker",
         "id": "native-speaker",
         "personality": "You are a native Tajik speaker evaluating authenticity. You assess whether it sounds natural and idiomatic to a fluent ear.",
+    },
+    "auditor": {
+        "name": "The Auditor",
+        "id": "auditor",
+        "personality": "You are a quality control auditor. Your job is to review the 3 evaluators' work, find mistakes and inconsistencies, and validate whether their evaluations are correct and reasonable.",
     },
 }
 
@@ -108,9 +113,16 @@ def evaluate_answer(
             )
             evaluations[persona_key] = eval_result
 
-    # Build export schema records (one per evaluator)
+    # Build export schema records (one per evaluator + auditor)
     export_records = []
+    auditor_accepted = evaluations.get("auditor", {}).get("accepted", False)
+
     for persona_key, eval_result in evaluations.items():
+        # Flag record if auditor rejected or found issues
+        flagged = False
+        if persona_key == "auditor":
+            flagged = not auditor_accepted
+
         record = {
             "study_id": study_id,
             "reviewer_id": EVALUATORS[persona_key]["id"],
@@ -124,7 +136,8 @@ def evaluate_answer(
             "register_fit": eval_result.get("register_fit", ""),
             "unwanted_code_switching": eval_result.get("unwanted_code_switching", ""),
             "notes": eval_result.get("notes", ""),
-            "flagged": False,
+            "auditor_recommendation": eval_result.get("recommendation", "") if persona_key == "auditor" else "",
+            "flagged": flagged,
             "complete": all(
                 eval_result.get(dim) != "" for dim in RUBRIC_DIMENSIONS
             )
@@ -149,8 +162,9 @@ def _get_batch_evaluation(
     answer: str, question: str, expected_answer: Optional[str], context: str
 ) -> dict:
     """
-    Get evaluations from all 3 personas in ONE API call (efficient batch mode).
-    ONE PROMPT → 450 API calls instead of 1,350.
+    Get evaluations from 3 personas + 1 auditor.
+    Step 1: 3 independent evaluators assess (1 API call)
+    Step 2: Auditor reviews their work and validates (1 API call)
     """
 
     dimensions_str = "\n".join(
@@ -161,7 +175,8 @@ def _get_batch_evaluation(
         ]
     )
 
-    prompt = f"""You are three independent Tajik language evaluators. Each of you will assess this response using the rubric below. Work independently—do not influence each other's scores.
+    # STEP 1: Get the 3 independent evaluations
+    prompt_step1 = f"""You are three independent Tajik language evaluators. Each of you will assess this response using the rubric below. Work independently—do not influence each other's scores.
 
 {dimensions_str}
 
@@ -199,6 +214,133 @@ Respond with THREE separate JSON objects, one per evaluator. No markdown, no exp
 """
 
     try:
+        # Call Gemini for step 1
+        payload = {"contents": [{"parts": [{"text": prompt_step1}]}]}
+        headers = {"Content-Type": "application/json"}
+        url = f"{GEMINI_API_URL}?key={API_KEY}"
+
+        response = requests.post(url, json=payload, headers=headers, timeout=60)
+        response.raise_for_status()
+
+        data = response.json()
+        text_response = (
+            data.get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [{}])[0]
+            .get("text", "")
+        )
+
+        # Parse three JSON objects
+        evaluations = {}
+        persona_keys = ["linguist", "pragmatist", "native"]
+        json_objects = []
+
+        for match in re.finditer(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", text_response):
+            try:
+                json_objects.append(json.loads(match.group()))
+            except json.JSONDecodeError:
+                pass
+
+        # Assign to personas
+        for i, persona_key in enumerate(persona_keys):
+            if i < len(json_objects):
+                evaluations[persona_key] = json_objects[i]
+            else:
+                evaluations[persona_key] = _empty_evaluation()
+
+        # STEP 2: Auditor reviews the 3 evaluations
+        auditor_eval = _get_auditor_evaluation(
+            answer, question, evaluations, expected_answer, context
+        )
+        evaluations["auditor"] = auditor_eval
+
+        return evaluations
+
+    except (json.JSONDecodeError, requests.RequestException, KeyError) as e:
+        return {
+            persona_key: _empty_evaluation()
+            for persona_key in ["linguist", "pragmatist", "native", "auditor"]
+        }
+
+
+def _empty_evaluation() -> dict:
+    """Return empty evaluation structure."""
+    return {
+        "grammaticality": "",
+        "naturalness": "",
+        "meaning_correctness": "",
+        "instruction_adherence": "",
+        "register_fit": "",
+        "unwanted_code_switching": "unclear",
+        "notes": "Error: Could not complete evaluation",
+    }
+
+
+def _get_auditor_evaluation(
+    answer: str, question: str, three_evals: dict, expected_answer: Optional[str], context: str
+) -> dict:
+    """
+    The Auditor reviews the 3 evaluators' work and validates their scores.
+    Checks for mistakes, inconsistencies, and provides final verdict.
+    """
+
+    # Format the 3 evaluations for the auditor to review
+    evals_summary = "\n\n".join(
+        [
+            f"EVALUATOR {i+1}: {EVALUATORS[key]['name']}\n"
+            + json.dumps(three_evals[key], indent=2, ensure_ascii=False)
+            for i, key in enumerate(["linguist", "pragmatist", "native"])
+        ]
+    )
+
+    prompt = f"""You are "The Auditor" - a quality control expert reviewing evaluation work.
+
+Three evaluators have just assessed this Tajik language response. Your job is to:
+1. Review each evaluator's scores
+2. Check for mistakes or inconsistencies
+3. Verify scores make sense given the response
+4. Flag any problems found
+5. Provide your own assessment and final verdict
+
+TASK CONTEXT:
+Question: {question}
+{f"Context: {context}" if context else ""}
+{f"Reference Answer: {expected_answer}" if expected_answer else ""}
+
+RESPONSE EVALUATED:
+{answer}
+
+---
+
+THREE EVALUATORS' ASSESSMENTS:
+
+{evals_summary}
+
+---
+
+Now audit their work. Check for:
+- Are scores reasonable given the response?
+- Are there inconsistencies between evaluators?
+- Did anyone make obvious mistakes?
+- Are the notes justified by the scores?
+- Overall: Are these scores acceptable or should they be flagged?
+
+Provide your auditor assessment in JSON:
+{{
+    "grammaticality": <0-2>,
+    "naturalness": <0-2>,
+    "meaning_correctness": <0-2>,
+    "instruction_adherence": <0-2>,
+    "register_fit": <0-2>,
+    "unwanted_code_switching": "<yes|no|unclear>",
+    "accepted": <true|false>,
+    "issues_found": ["<issue1>", "<issue2>"],
+    "recommendation": "<Auditor's final verdict: ACCEPT / REJECT / FLAG FOR REVIEW>",
+    "notes": "<Detailed audit assessment>"
+}}
+"""
+
+    try:
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         headers = {"Content-Type": "application/json"}
         url = f"{GEMINI_API_URL}?key={API_KEY}"
@@ -214,49 +356,33 @@ Respond with THREE separate JSON objects, one per evaluator. No markdown, no exp
             .get("text", "")
         )
 
-        # Parse three JSON objects from response
-        evaluations = {}
-        persona_keys = ["linguist", "pragmatist", "native"]
-
-        # Extract JSON objects
-        json_objects = []
-        import re
-
-        for match in re.finditer(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", text_response):
-            try:
-                json_objects.append(json.loads(match.group()))
-            except json.JSONDecodeError:
-                pass
-
-        # Assign to personas
-        for i, persona_key in enumerate(persona_keys):
-            if i < len(json_objects):
-                evaluations[persona_key] = json_objects[i]
+        # Parse JSON
+        try:
+            result = json.loads(text_response)
+        except json.JSONDecodeError:
+            if "```json" in text_response:
+                json_str = text_response.split("```json")[1].split("```")[0].strip()
+                result = json.loads(json_str)
+            elif "```" in text_response:
+                json_str = text_response.split("```")[1].strip()
+                result = json.loads(json_str)
             else:
-                evaluations[persona_key] = {
-                    "grammaticality": "",
-                    "naturalness": "",
-                    "meaning_correctness": "",
-                    "instruction_adherence": "",
-                    "register_fit": "",
-                    "unwanted_code_switching": "unclear",
-                    "notes": "Failed to parse evaluation",
-                }
+                raise
 
-        return evaluations
+        return result
 
     except (json.JSONDecodeError, requests.RequestException, KeyError) as e:
         return {
-            persona_key: {
-                "grammaticality": "",
-                "naturalness": "",
-                "meaning_correctness": "",
-                "instruction_adherence": "",
-                "register_fit": "",
-                "unwanted_code_switching": "unclear",
-                "notes": f"Error: {str(e)}",
-            }
-            for persona_key in ["linguist", "pragmatist", "native"]
+            "grammaticality": "",
+            "naturalness": "",
+            "meaning_correctness": "",
+            "instruction_adherence": "",
+            "register_fit": "",
+            "unwanted_code_switching": "unclear",
+            "accepted": False,
+            "issues_found": [f"Auditor error: {str(e)}"],
+            "recommendation": "FLAG FOR REVIEW",
+            "notes": f"Auditor failed: {str(e)}",
         }
 
 
@@ -432,12 +558,16 @@ def export_to_csv(evaluation_result: dict, filename: str = None) -> str:
 
 
 def generate_html_report(evaluation_result: dict) -> str:
-    """Generate HTML report showing all three evaluators' assessments."""
+    """Generate HTML report showing all 3 evaluators + auditor verdict."""
 
     evaluations = evaluation_result["evaluations"]
     consensus = evaluation_result["consensus_scores"]
     question = evaluation_result["question"]
     answer = evaluation_result["answer"]
+
+    auditor_data = evaluations.get("auditor", {})
+    auditor_accepted = auditor_data.get("accepted", False)
+    auditor_recommendation = auditor_data.get("recommendation", "UNKNOWN")
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -463,6 +593,15 @@ def generate_html_report(evaluation_result: dict) -> str:
         }}
         .header h1 {{ margin-bottom: 10px; }}
         .header p {{ opacity: 0.9; }}
+        .auditor-verdict {{
+            background: {'#27ae60' if auditor_accepted else '#e74c3c'};
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 1.2em;
+        }}
         .section {{
             background: white;
             padding: 25px;
@@ -483,7 +622,12 @@ def generate_html_report(evaluation_result: dict) -> str:
             border-left: 4px solid #3498db;
             border-radius: 4px;
         }}
+        .evaluator.auditor {{
+            border-left-color: {'#27ae60' if auditor_accepted else '#e74c3c'};
+            background: {'#f0f8f5' if auditor_accepted else '#fdf5f5'};
+        }}
         .evaluator h3 {{ color: #2980b9; margin-bottom: 15px; }}
+        .evaluator.auditor h3 {{ color: {'#27ae60' if auditor_accepted else '#e74c3c'}; }}
         .scores-grid {{
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -546,30 +690,30 @@ def generate_html_report(evaluation_result: dict) -> str:
             font-style: italic;
             color: #666;
         }}
-        .export-buttons {{
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+        .issues {{
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3cd;
+            border-left: 3px solid #e74c3c;
+            border-radius: 3px;
+            color: #333;
         }}
-        .export-buttons button {{
-            padding: 10px 20px;
-            background: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-        }}
-        .export-buttons button:hover {{
-            background: #229954;
-        }}
+        .issues strong {{ color: #e74c3c; }}
+        .issues ul {{ margin: 10px 0 0 20px; }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🤖 AI Council Evaluation Report</h1>
-            <p>Three independent evaluators assess the response</p>
+            <p>Three independent evaluators + Auditor quality control</p>
+        </div>
+
+        <div class="auditor-verdict">
+            📋 AUDITOR VERDICT: {auditor_recommendation}
+            <br><span style="font-size: 0.8em; font-weight: normal;">
+                {'✅ Evaluations ACCEPTED - Quality assured' if auditor_accepted else '⚠️ Evaluations FLAGGED - Issues detected'}
+            </span>
         </div>
 
         <div class="section">
@@ -588,10 +732,12 @@ def generate_html_report(evaluation_result: dict) -> str:
 
     for persona_key, persona_info in EVALUATORS.items():
         eval_data = evaluations.get(persona_key, {})
+        is_auditor = persona_key == "auditor"
 
+        evaluator_class = "auditor" if is_auditor else ""
         html += f"""
-            <div class="evaluator">
-                <h3>{persona_info['name']}</h3>
+            <div class="evaluator {evaluator_class}">
+                <h3>{persona_info['name']}{"" if not is_auditor else " (Quality Control)"}</h3>
                 <div class="scores-grid">
 """
 
@@ -615,8 +761,21 @@ def generate_html_report(evaluation_result: dict) -> str:
                 </div>
 """
 
+        if is_auditor and eval_data.get("issues_found"):
+            html += f"""
+            <div class="issues">
+                <strong>⚠️ Issues Found:</strong>
+                <ul>
+"""
+            for issue in eval_data.get("issues_found", []):
+                html += f"<li>{issue}</li>"
+            html += """
+                </ul>
+            </div>
+"""
+
         if eval_data.get("notes"):
-            html += f'<div class="notes"><strong>Notes:</strong> {eval_data.get("notes")}</div>'
+            html += f'<div class="notes"><strong>Assessment:</strong> {eval_data.get("notes")}</div>'
 
         html += "</div>"
 
