@@ -7,7 +7,7 @@ name = "tajik-llm-benchmark"
 version = "0.1.0"
 description = "Reproducible benchmark pipeline for Tajik-language LLM evaluation"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["requests", "regex"]
 
 [project.scripts]
 tajik-bench = "tajik_benchmark.cli:main"

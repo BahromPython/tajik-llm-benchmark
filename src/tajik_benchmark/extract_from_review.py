@@ -6,8 +6,13 @@ from pathlib import Path
 from .council_evaluator import evaluate_answer, export_to_json, export_to_csv
 
 
-def extract_items_from_html(html_path: str) -> list:
-    """Extract all items from Bahrom's HTML review file."""
+def extract_items_from_html(html_path: str) -> tuple:
+    """Extract all items and assignment metadata from Bahrom's HTML review file.
+
+    Returns (items, metadata) where metadata carries study_id, dataset_sha256,
+    assignment_version, reviewer_id, reviewer_name -- exactly as the HTML review
+    interface's own exportJSON()/exportRows() embed them in every export.
+    """
 
     with open(html_path, "r", encoding="utf-8") as f:
         content = f.read()
@@ -30,19 +35,33 @@ def extract_items_from_html(html_path: str) -> list:
         raise
 
     items = payload.get("assignments", [])
+    metadata = {
+        "study_id": payload.get("study_id", ""),
+        "dataset_sha256": payload.get("dataset_sha256", ""),
+        "assignment_version": payload.get("assignment_version", ""),
+        "reviewer_id": payload.get("reviewer_id", ""),
+        "reviewer_name": payload.get("reviewer_name", ""),
+    }
     print(f"✓ Extracted {len(items)} items from HTML")
-    print(f"  Study: {payload.get('study_id')}")
-    print(f"  Reviewer: {payload.get('reviewer_name')}")
+    print(f"  Study: {metadata['study_id']}")
+    print(f"  Reviewer: {metadata['reviewer_name']}")
 
-    return items
+    return items, metadata
 
 
 def process_items_batch(
-    items: list, output_file: str = "bahrom_council_eval", study_id: str = "bahrom-450"
+    items: list,
+    metadata: dict,
+    output_file: str = "bahrom_council_eval",
 ) -> None:
     """
-    Process all 450 items with council evaluator in BATCH mode.
-    450 items × 1 prompt = 450 API calls (not 1,350)
+    Process all items with council evaluator in BATCH mode.
+    N items x 1 prompt = N API calls (not 3N).
+
+    `metadata` must carry study_id, dataset_sha256, assignment_version,
+    reviewer_id, reviewer_name -- as returned by extract_items_from_html() --
+    so every exported record matches the HTML review interface's own
+    tajik-human-review-v1 schema exactly.
     """
 
     all_records = []
@@ -70,7 +89,10 @@ def process_items_batch(
                 question=question,
                 item_id=item_id,
                 blind_id=blind_id,
-                study_id=study_id,
+                study_id=metadata["study_id"],
+                dataset_sha256=metadata["dataset_sha256"],
+                assignment_version=metadata["assignment_version"],
+                assignment_order=idx,
                 batch_mode=True,  # KEY: Batch mode = 1 prompt for all 3
             )
 
@@ -87,13 +109,19 @@ def process_items_batch(
     print(f"✓ Generated {len(all_records)} evaluation records")
     print(f"{'='*60}\n")
 
-    # JSON export
+    complete_count = sum(1 for r in all_records if r["complete"])
+
+    # JSON export -- matches the HTML review interface's exportJSON() exactly
     json_file = f"{output_file}.json"
     export_data = {
         "export_schema": "tajik-human-review-v1",
-        "study_id": study_id,
+        "study_id": metadata["study_id"],
+        "dataset_sha256": metadata["dataset_sha256"],
+        "assignment_version": metadata["assignment_version"],
+        "reviewer_id": metadata["reviewer_id"],
+        "reviewer_name": metadata["reviewer_name"],
         "assigned_count": total,
-        "completed_count": total,
+        "completed_count": complete_count,
         "ratings": all_records,
     }
     with open(json_file, "w", encoding="utf-8") as f:
@@ -107,7 +135,7 @@ def process_items_batch(
 
     print(f"\n📊 Summary:")
     print(f"   Items evaluated: {total}")
-    print(f"   Total ratings: {len(all_records)} ({total} × 3 evaluators)")
+    print(f"   Total ratings: {len(all_records)} ({total} × 4 evaluators)")
     print(f"   API calls used: ~{total} (batch mode)")
     print(f"   Files generated: JSON, CSV")
 
@@ -122,10 +150,10 @@ def main():
         return
 
     print("Extracting items from Bahrom's review HTML...")
-    items = extract_items_from_html(html_path)
+    items, metadata = extract_items_from_html(html_path)
 
     print(f"\nStarting batch evaluation of {len(items)} items...")
-    process_items_batch(items, output_file="bahrom_council_eval", study_id="bahrom-450")
+    process_items_batch(items, metadata, output_file="bahrom_council_eval")
 
 
 if __name__ == "__main__":
