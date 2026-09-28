@@ -11,7 +11,6 @@ from typing import Optional
 from datetime import datetime
 import requests
 import csv
-import regex
 from io import StringIO
 
 # Initialize Gemini
@@ -83,24 +82,6 @@ RUBRIC_DESCRIPTIONS = {
 }
 
 
-def count_words(text: str) -> int:
-    """Count words the same way the HTML review interface's countWords() does."""
-    return len(
-        regex.findall(r"[\p{L}\p{M}]+(?:['’ʼ-][\p{L}\p{M}]+)*|\p{N}+", text or "")
-    )
-
-
-def extract_word_range(prompt: str) -> tuple:
-    """Extract the required min/max word count from a task prompt, matching the
-    HTML review interface's extractWordRange() (e.g. "15-25 калима")."""
-    match = regex.search(
-        r"(\d+)\s*[–—-]\s*(\d+)\s*(?:калима|word)", prompt or "", regex.IGNORECASE
-    )
-    if match:
-        return int(match.group(1)), int(match.group(2))
-    return None, None
-
-
 def evaluate_answer(
     answer: str,
     question: str,
@@ -140,11 +121,6 @@ def evaluate_answer(
     export_records = []
     auditor_accepted = evaluations.get("auditor", {}).get("accepted", False)
 
-    word_count = count_words(answer)
-    min_words, max_words = extract_word_range(question)
-    length_requirement_met = (
-        min_words <= word_count <= max_words if min_words is not None else ""
-    )
     exported_at_utc = datetime.utcnow().isoformat() + "Z"
 
     for persona_key, eval_result in evaluations.items():
@@ -162,15 +138,11 @@ def evaluate_answer(
             "blind_id": blind_id or f"response-{len(export_records)+1}",
             "item_id": item_id or "",
             "assignment_order": assignment_order if assignment_order is not None else "",
-            "model_response_word_count": word_count,
-            "required_min_words": min_words if min_words is not None else "",
-            "required_max_words": max_words if max_words is not None else "",
-            "length_requirement_met": length_requirement_met,
-            "grammaticality": eval_result.get("grammaticality", ""),
-            "naturalness": eval_result.get("naturalness", ""),
-            "meaning_correctness": eval_result.get("meaning_correctness", ""),
-            "instruction_adherence": eval_result.get("instruction_adherence", ""),
-            "register_fit": eval_result.get("register_fit", ""),
+            "grammaticality": str(eval_result.get("grammaticality", "")),
+            "naturalness": str(eval_result.get("naturalness", "")),
+            "meaning_correctness": str(eval_result.get("meaning_correctness", "")),
+            "instruction_adherence": str(eval_result.get("instruction_adherence", "")),
+            "register_fit": str(eval_result.get("register_fit", "")),
             "unwanted_code_switching": eval_result.get("unwanted_code_switching", ""),
             "flagged": flagged,
             "complete": all(
@@ -580,10 +552,6 @@ def export_to_csv(evaluation_result: dict, filename: str = None) -> str:
         "blind_id",
         "item_id",
         "assignment_order",
-        "model_response_word_count",
-        "required_min_words",
-        "required_max_words",
-        "length_requirement_met",
         "grammaticality",
         "naturalness",
         "meaning_correctness",

@@ -2,6 +2,7 @@
 
 import json
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 from .council_evaluator import evaluate_answer, export_to_json, export_to_csv
 
@@ -52,7 +53,7 @@ def extract_items_from_html(html_path: str) -> tuple:
 def process_items_batch(
     items: list,
     metadata: dict,
-    output_file: str = "bahrom_council_eval",
+    output_file: str = None,
 ) -> None:
     """
     Process all items with council evaluator in BATCH mode.
@@ -62,7 +63,14 @@ def process_items_batch(
     reviewer_id, reviewer_name -- as returned by extract_items_from_html() --
     so every exported record matches the HTML review interface's own
     tajik-human-review-v1 schema exactly.
+
+    `output_file` defaults to "<reviewer_id>_ratings_<YYYY-MM-DD>", matching
+    the filename the HTML review interface's own download() call produces.
     """
+
+    if output_file is None:
+        date_stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        output_file = f"{metadata['reviewer_id']}_ratings_{date_stamp}"
 
     all_records = []
     total = len(items)
@@ -153,7 +161,7 @@ def main():
     items, metadata = extract_items_from_html(html_path)
 
     print(f"\nStarting batch evaluation of {len(items)} items...")
-    process_items_batch(items, metadata, output_file="bahrom_council_eval")
+    process_items_batch(items, metadata)
 
 
 if __name__ == "__main__":
